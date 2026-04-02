@@ -21,10 +21,21 @@ export default function LandingPage({
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-teal-500/10 blur-[120px] rounded-full pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none"></div>
 
-      <div className="max-w-4xl w-full glass-panel p-8 md:p-12 rounded-3xl relative z-10 transition-all duration-500 hover:shadow-[0_0_80px_rgba(45,212,191,0.15)]">
-        <div className="mb-6 text-7xl animate-bounce drop-shadow-[0_0_15px_rgba(45,212,191,0.5)]">🧠</div>
+      <div className="max-w-4xl w-full glass-panel p-8 md:p-12 rounded-3xl relative z-10 transition-all duration-500 hover:shadow-[0_0_80px_rgba(45,212,191,0.15)] flex flex-col items-center">
+        
+        {/* Added Logo Integration */}
+        <div className="mb-6 animate-fade-in relative group">
+          <div className="absolute inset-0 bg-teal-400/20 blur-xl rounded-full group-hover:bg-teal-400/40 transition-all duration-500"></div>
+          <img 
+            src="/logo.png" 
+            alt="Soft Skills Maze Logo" 
+            className="h-32 md:h-40 object-contain relative z-10 drop-shadow-[0_0_20px_rgba(45,212,191,0.6)] group-hover:scale-105 transition-transform duration-500"
+            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
+          />
+          <div style={{ display: 'none' }} className="text-7xl animate-bounce drop-shadow-[0_0_15px_rgba(45,212,191,0.5)]">🧠</div>
+        </div>
 
-        <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-8 tracking-tight">
+        <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-8 tracking-tight text-center">
           Soft Skills{' '}
           <span className="text-gradient">
             Maze Challenge
@@ -43,12 +54,19 @@ export default function LandingPage({
 
         <div className="grid md:grid-cols-2 gap-6 mb-10 text-left">
           <div className="bg-slate-950/60 p-8 rounded-2xl border border-slate-700/50 shadow-inner group hover:border-amber-500/30 transition-colors">
-            <h3 className="text-xl font-bold text-amber-400 mb-4 flex items-center gap-2"><span>🎮</span> How to Play</h3>
-            <ul className="text-slate-300 space-y-3 text-lg">
-              <li className="flex items-start gap-2"><span className="text-amber-500 mt-1">▸</span> Move with Arrow Keys or WASD</li>
-              <li className="flex items-start gap-2"><span className="text-amber-500 mt-1">▸</span> On mobile, use the touch controls</li>
-              <li className="flex items-start gap-2"><span className="text-amber-500 mt-1">▸</span> Reach locked doors and answer correctly</li>
-              <li className="flex items-start gap-2"><span className="text-amber-500 mt-1">▸</span> Wrong paths teach necessary lessons</li>
+            <h3 className="text-xl font-bold text-amber-400 mb-4 flex items-center gap-2"><span>🎮</span> Modern Mechanics</h3>
+            <ul className="text-slate-300 space-y-3 text-sm md:text-base leading-relaxed hidden sm:block">
+              <li className="flex items-start gap-2"><span className="text-teal-400 mt-0.5 font-bold">⚡</span> <span><strong>Speedrun Timer:</strong> The leaderboard ranks by time! Answer fast.</span></li>
+              <li className="flex items-start gap-2"><span className="text-red-400 mt-0.5 font-bold">⏳</span> <span><strong>Penalties:</strong> Failing a door adds a brutal +15 seconds to your time!</span></li>
+              <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5 font-bold">📜</span> <span><strong>Troll Traps:</strong> Avoid decoy dead-ends. They will aggressively question your worth.</span></li>
+              <li className="flex items-start gap-2"><span className="text-blue-400 mt-0.5 font-bold">🔄</span> <span><strong>Dynamic Runs:</strong> 6 random scenarios are drawn from a pool of 13 every run.</span></li>
+              <li className="flex items-start gap-2"><span className="text-cyan-400 mt-0.5 font-bold">📱</span> <span><strong>Controls:</strong> Swipe in any direction on mobile, or Arrow Keys/WASD on PC.</span></li>
+            </ul>
+            <ul className="text-slate-300 space-y-3 text-sm leading-relaxed sm:hidden">
+              <li className="flex items-start gap-2"><span className="text-teal-400 mt-0.5 font-bold">⚡</span> <span><strong>Speed:</strong> Fastest time wins!</span></li>
+              <li className="flex items-start gap-2"><span className="text-red-400 mt-0.5 font-bold">⏳</span> <span><strong>Mistakes:</strong> +15s penalty.</span></li>
+              <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5 font-bold">📜</span> <span><strong>Traps:</strong> Decoys will judge you.</span></li>
+              <li className="flex items-start gap-2"><span className="text-cyan-400 mt-0.5 font-bold">📱</span> <span><strong>Input:</strong> Just swipe!</span></li>
             </ul>
           </div>
 

@@ -3,7 +3,7 @@ import axios from 'axios';
 import Confetti from 'react-confetti';
 import { useNavigate } from 'react-router-dom';
 
-export default function ResultsPage({ score, totalQuestions, playerName, questions, resetGame }) {
+export default function ResultsPage({ score, totalQuestions, playerName, questions, resetGame, timeTaken }) {
   const navigate = useNavigate();
   const [leaderboard, setLeaderboard] = useState([]);
   const [playerRank, setPlayerRank] = useState(null);
@@ -12,6 +12,13 @@ export default function ResultsPage({ score, totalQuestions, playerName, questio
     width: window.innerWidth,
     height: window.innerHeight
   });
+
+  const formatTime = (secs) => {
+    if (secs === undefined || secs === null) return '--:--';
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
 
   useEffect(() => {
     const onResize = () =>
@@ -95,13 +102,21 @@ export default function ResultsPage({ score, totalQuestions, playerName, questio
             <p className="text-slate-300">{getRewardMessage()}</p>
           </div>
 
-          <div className="bg-slate-950/60 rounded-2xl p-8 mb-6 w-full border border-slate-700/50 text-center shadow-inner">
+          <div className="bg-slate-950/60 rounded-2xl p-8 mb-6 w-full border border-slate-700/50 text-center shadow-inner relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-amber-500 text-amber-950 text-xs font-black px-3 py-1 rounded-bl-xl uppercase tracking-widest">
+              Speedrun Time
+            </div>
             <p className="text-sm text-slate-500 uppercase tracking-widest font-bold mb-3">
               Final Score
             </p>
-            <p className="text-6xl font-black text-teal-400 drop-shadow-[0_0_10px_rgba(45,212,191,0.3)]">
+            <p className="text-6xl font-black text-teal-400 drop-shadow-[0_0_10px_rgba(45,212,191,0.3)] mb-2">
               {score} <span className="text-3xl text-slate-600 font-bold">/ {totalQuestions}</span>
             </p>
+            {playerName && (
+              <p className="text-2xl font-mono text-amber-400 font-bold tracking-widest">
+                ⏱ {formatTime(timeTaken)}
+              </p>
+            )}
           </div>
 
           {playerRank && (
@@ -135,9 +150,14 @@ export default function ResultsPage({ score, totalQuestions, playerName, questio
                     <span className="font-semibold flex items-center gap-2">
                       <span className="text-slate-500 w-5">{i + 1}.</span> {entry.player_name}
                     </span>
-                    <span className="font-bold text-teal-400">
-                      {entry.score} <span className="text-slate-500 text-sm font-normal">/ {entry.total_questions}</span>
-                    </span>
+                    <div className="text-right flex flex-col items-end">
+                      <span className="font-bold text-teal-400">
+                        {entry.score} <span className="text-slate-500 text-sm font-normal">/ {entry.total_questions}</span>
+                      </span>
+                      <span className="text-xs font-mono text-amber-500 opacity-80 tracking-widest">
+                        ⏱ {formatTime(entry.time_taken)}
+                      </span>
+                    </div>
                   </li>
                 ))
               )}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Question from '../components/Question';
 
 // TILE TYPES
 // 0 = path
@@ -14,24 +15,24 @@ const initialMaze = [
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1],
   [1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
   [1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,1,1,0,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,4,1,0,0,0,0,0,0,0,1,1,1,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1],
   [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,0,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,0,1,0,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+  [1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+  [1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+  [1,1,1,0,1,1,1,0,0,1,4,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+  [1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+  [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,1],
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1],
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,0,1,1,1],
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1],
   [1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
-  [1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,1,1,0,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,1,1,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,0,1,1,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1],
-  [1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
-  [1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,1,1,0,1,1,1,1,1,1,4,1,1,1,1,1,4,1,1,1,1,1,1,1,1],
-  [1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+  [1,1,1,0,1,1,1,0,1,1,4,1,1,1,1,1,4,1,0,0,0,0,0,0,1],
+  [1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1],
   [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,1],
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 ];
@@ -109,7 +110,7 @@ const playSound = (type) => {
   }
 };
 
-export default function MazeGame({ questions, playerName, score, setScore }) {
+export default function MazeGame({ questions, playerName, score, setScore, timeTaken, setTimeTaken }) {
   const navigate = useNavigate();
 
   const [maze] = useState(initialMaze);
@@ -131,6 +132,21 @@ export default function MazeGame({ questions, playerName, score, setScore }) {
   const [fragments, setFragments] = useState([]);
   const [doorStates, setDoorStates] = useState({});
   const [returnPoint, setReturnPoint] = useState(null);
+  
+  // Troll Trap State
+  const [trollTrapTriggered, setTrollTrapTriggered] = useState(false);
+  const [trollInput, setTrollInput] = useState('');
+  const [touchStart, setTouchStart] = useState(null);
+
+  // Speedrun Timer effect
+  useEffect(() => {
+    if (modalState === null || modalState === 'wrongPath') {
+      const timerId = setInterval(() => {
+        setTimeTaken(prev => prev + 1);
+      }, 1000);
+      return () => clearInterval(timerId);
+    }
+  }, [modalState, setTimeTaken]);
 
   const cellSize = 20;
   const gapSize = 2;
@@ -178,7 +194,8 @@ export default function MazeGame({ questions, playerName, score, setScore }) {
         await axios.post('https://backend-pink-seven-27.vercel.app/api/scores', {
           player_name: playerName,
           score: finalScore,
-          total_questions: questions.length
+          total_questions: totalDoors,
+          time_taken: timeTaken
         });
       } catch (err) {
         console.error(err);
@@ -187,7 +204,7 @@ export default function MazeGame({ questions, playerName, score, setScore }) {
         navigate('/results');
       }
     },
-    [navigate, playerName, questions.length]
+    [navigate, playerName, totalDoors, timeTaken]
   );
 
   const movePlayer = useCallback(
@@ -223,6 +240,19 @@ export default function MazeGame({ questions, playerName, score, setScore }) {
       const targetKey = posKey(targetX, targetY);
 
       if (targetTile === 1) {
+        let surrounds = 0;
+        if (playerPos.y > 0 && initialMaze[playerPos.y - 1][playerPos.x] === 1) surrounds++;
+        if (playerPos.y < maze.length - 1 && initialMaze[playerPos.y + 1][playerPos.x] === 1) surrounds++;
+        if (playerPos.x > 0 && initialMaze[playerPos.y][playerPos.x - 1] === 1) surrounds++;
+        if (playerPos.x < maze[0].length - 1 && initialMaze[playerPos.y][playerPos.x + 1] === 1) surrounds++;
+        
+        // Player is at a 3-walled cell (dead end) and trying to walk into the 3rd wall
+        if (surrounds === 3 && !(playerPos.x === 23 && playerPos.y === 23) && !trollTrapTriggered) {
+          setTrollTrapTriggered(true);
+          setModalState('trollTrap');
+          return;
+        }
+
         playSound('wall');
         triggerShake();
         return;
@@ -369,17 +399,13 @@ export default function MazeGame({ questions, playerName, score, setScore }) {
 
     if (selectedOption === q.correct_answer) {
       playSound('success');
+      setScore((s) => s + 1);
+      setDoorStates((prev) => ({ ...prev, [pendingDoorIndex]: 'completed' }));
 
       addTrailAndVisit(playerPos, doorConfig.door, playerDir);
       setPlayerPos({ x: doorConfig.door.x, y: doorConfig.door.y });
 
-      setDoorStates((prev) => ({
-        ...prev,
-        [pendingDoorIndex]: 'completed'
-      }));
-
       setActiveWrongPath(null);
-      setScore((prev) => prev + 1);
 
       setLessonTitle(skill);
       setFragmentName('');
@@ -392,16 +418,13 @@ export default function MazeGame({ questions, playerName, score, setScore }) {
       setPendingDoorIndex(null);
       setModalState('successPath');
       return;
+    } else {
+      playSound('error');
+      setDoorStates((prev) => ({ ...prev, [pendingDoorIndex]: 'wrong-path' }));
+      setActiveWrongPath(pendingDoorIndex);
+      // Speedrun Penalty for wrong door!
+      setTimeTaken(prev => prev + 15);
     }
-
-    playSound('move');
-
-    setDoorStates((prev) => ({
-      ...prev,
-      [pendingDoorIndex]: 'wrong-path'
-    }));
-
-    setActiveWrongPath(pendingDoorIndex);
 
     // Let player pass the door and explore the low road
     addTrailAndVisit(playerPos, doorConfig.door, playerDir);
@@ -427,8 +450,57 @@ export default function MazeGame({ questions, playerName, score, setScore }) {
     setModalState('question');
   };
 
+  const handleTouchStart = (e) => {
+    setTouchStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+  };
+  const handleTouchEnd = (e) => {
+    if (!touchStart || modalState) return;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const dx = endX - touchStart.x;
+    const dy = endY - touchStart.y;
+    
+    if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return; // ignore taps
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > 0) movePlayer(1, 0, 90);
+      else movePlayer(-1, 0, -90);
+    } else {
+      if (dy > 0) movePlayer(0, 1, 180);
+      else movePlayer(0, -1, 0);
+    }
+    setTouchStart(null);
+  };
+
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
   return (
-    <div className="flex flex-col items-center min-h-screen bg-slate-950 py-10 px-4 pt-16">
+    <div 
+      className="flex flex-col items-center justify-center min-h-screen bg-slate-950 p-4 font-sans relative overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <div className="absolute top-[-10%] left-[-10%] w-[30%] h-[30%] bg-teal-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-purple-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+      <div className="text-center mb-6 z-10 glass-panel px-8 py-4 rounded-2xl flex items-center justify-between w-full max-w-[536px]">
+        <div className="text-left">
+          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 tracking-tight">
+            Level {score}
+          </h1>
+          <p className="text-slate-400 font-medium">Navigating as <span className="text-white">{playerName}</span></p>
+        </div>
+        <div className="text-right">
+          <div className="text-2xl font-black text-amber-400 font-mono tracking-widest bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-700 shadow-inner">
+            ⏱ {formatTime(timeTaken)}
+          </div>
+        </div>
+      </div>
+
       <div className="w-full max-w-7xl relative z-10 glass-panel rounded-3xl p-6 md:p-10 mb-20 animate-fade-in mx-auto">
         <div className="grid lg:grid-cols-[1fr_320px] gap-5 items-start">
           <div className="flex flex-col">
@@ -598,34 +670,44 @@ export default function MazeGame({ questions, playerName, score, setScore }) {
       {modalState && (
         <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-50 fixed">
           {modalState === 'question' && pendingDoorIndex !== null && questions[pendingDoorIndex] && (
-            <div className="bg-slate-900 p-8 rounded-2xl max-w-2xl border border-teal-500 shadow-2xl w-full">
-              <h2 className="text-amber-500 font-bold uppercase tracking-widest mb-4">
-                🔒 Chamber {pendingDoorIndex + 1}
+            <Question 
+              question={questions[pendingDoorIndex]} 
+              skillName={skillNames[pendingDoorIndex] || 'Soft Skill'} 
+              chamberIndex={pendingDoorIndex} 
+              handleAnswer={handleAnswer} 
+            />
+          )}
+
+          {modalState === 'trollTrap' && (
+            <div className="bg-slate-950 p-8 rounded-3xl max-w-xl border-y-4 border-amber-500 shadow-[0_0_50px_rgba(245,158,11,0.2)] text-center w-full">
+              <div className="text-5xl mb-4 animate-bounce">📜</div>
+              <h2 className="text-2xl font-black text-amber-500 uppercase tracking-widest mb-4">
+                A Mysterious Whisper
               </h2>
-
-              <p className="text-sm text-teal-400 font-bold mb-3">
-                Skill Focus: {skillNames[pendingDoorIndex] || 'Soft Skill'}
+              <p className="text-slate-300 text-xl leading-relaxed italic mb-8">
+                "Do you really think taking these dark corners can get you anywhere? What made you wander off the true path?"
               </p>
+              
+              <textarea 
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white resize-none h-32 focus:border-amber-500 focus:outline-none mb-6 shadow-inner"
+                placeholder="Explain your logic..."
+                value={trollInput}
+                onChange={(e) => setTrollInput(e.target.value)}
+              ></textarea>
 
-              <p className="text-xl text-white mb-8 leading-relaxed font-medium">
-                {questions[pendingDoorIndex].scenario}
-              </p>
-
-              <div className="flex flex-col gap-4">
-                <button
-                  className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left p-5 rounded-xl text-white transition hover:border-teal-500"
-                  onClick={() => handleAnswer('A')}
-                >
-                  A) {questions[pendingDoorIndex].option_a}
-                </button>
-
-                <button
-                  className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left p-5 rounded-xl text-white transition hover:border-teal-500"
-                  onClick={() => handleAnswer('B')}
-                >
-                  B) {questions[pendingDoorIndex].option_b}
-                </button>
-              </div>
+              <button
+                className="w-full bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-500 hover:to-orange-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg transition-transform hover:scale-105 active:scale-95 text-lg"
+                onClick={() => {
+                  playSound('error');
+                  setModalState('wrongPath');
+                  setLessonTitle('Unworthy');
+                  setFeedbackMsg('You still lack the full soft skills to proceed. You are not worthy of this path. Turn back.');
+                  setFragmentName('');
+                }}
+                disabled={trollInput.trim().length === 0}
+              >
+                Submit Answer
+              </button>
             </div>
           )}
 
