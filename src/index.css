@@ -1,17 +1,60 @@
 @import "tailwindcss";
 
-body {
-  @apply bg-slate-900 text-white m-0 h-screen flex items-center justify-center overflow-hidden;
+@theme {
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
 }
+
+body {
+  @apply bg-slate-950 text-white m-0 min-h-screen antialiased selection:bg-teal-500/30 selection:text-teal-200;
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(20, 184, 166, 0.08), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.08), transparent 25%);
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.8);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(45, 212, 191, 0.4);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(45, 212, 191, 0.8);
+}
+
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
 
 /* Custom Shake Animation for hitting walls */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-8px); }
-  50% { transform: translateX(8px); }
-  75% { transform: translateX(-4px); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-3px); }
 }
 
 .animate-shake {
   animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Glassmorphism */
+.glass-panel {
+  @apply bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 shadow-2xl;
+}
+
+/* Animated Gradient Text */
+.text-gradient {
+  background: linear-gradient(135deg, #2dd4bf, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

@@ -1,111 +1,194 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// TILE TYPES
+// 0 = path
+// 1 = wall
+// 2 = door
+// 3 = exit
+// 4 = dead end
 const initialMaze = [
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 3, 0, 2, 0, 1, 4, 0, 0, 0, 1],
-  [1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1],
-  [1, 4, 0, 1, 0, 2, 0, 0, 1, 0, 1],
-  [1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
-  [1, 0, 0, 0, 0, 0, 1, 0, 1, 2, 1],
-  [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1],
-  [1, 2, 1, 4, 1, 0, 2, 0, 1, 0, 1],
-  [1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1],
-  [1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1],
+  [1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,0,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1],
+  [1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,0,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1],
+  [1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,4,1,1,1,1,1,4,1,1,1,1,1,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1],
+  [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 ];
 
-const initialPlayerPos = { x: 9, y: 9 };
+const initialPlayerPos = { x: 23, y: 23 };
 
 const skillNames = [
   'Communication',
-  'Teamwork',
-  'Problem-Solving',
-  'Leadership',
-  'Critical Thinking',
-  'Decision-Making'
+  'Time Management',
+  'Emotional Intelligence',
+  'Adaptability',
+  'Clarity & Initiative',
+  'Professionalism'
 ];
 
+// Each chamber door has:
+// - door position
+// - return point before question
+// - wrong dead end position
+const doorConfigs = [
+  { questionIndex: 0, door: { x: 19, y: 23 }, returnPoint: { x: 20, y: 23 }, deadEnd: { x: 16, y: 21 } },
+  { questionIndex: 1, door: { x: 7,  y: 19 }, returnPoint: { x: 6,  y: 19 }, deadEnd: { x: 10, y: 21 } },
+  { questionIndex: 2, door: { x: 17, y: 15 }, returnPoint: { x: 18, y: 15 }, deadEnd: { x: 14, y: 17 } },
+  { questionIndex: 3, door: { x: 7,  y: 11 }, returnPoint: { x: 6,  y: 11 }, deadEnd: { x: 10, y: 13 } },
+  { questionIndex: 4, door: { x: 17, y: 7  }, returnPoint: { x: 18, y: 7  }, deadEnd: { x: 14, y: 9  } },
+  { questionIndex: 5, door: { x: 7,  y: 3  }, returnPoint: { x: 6,  y: 3  }, deadEnd: { x: 10, y: 5  } }
+];
+
+const posKey = (x, y) => `${x},${y}`;
+
 const playSound = (type) => {
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
 
-  osc.connect(gain);
-  gain.connect(ctx.destination);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
 
-  if (type === 'move') {
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(400, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.05);
-    gain.gain.setValueAtTime(0.05, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.1);
-  } else if (type === 'wall') {
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(100, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.2);
-  } else if (type === 'success') {
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(400, ctx.currentTime);
-    osc.frequency.setValueAtTime(800, ctx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.4);
-  } else if (type === 'error') {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(200, ctx.currentTime);
-    osc.frequency.setValueAtTime(150, ctx.currentTime + 0.2);
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.3);
+    if (type === 'move') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.05, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.1);
+    } else if (type === 'wall') {
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(100, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.2);
+    } else if (type === 'success') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(400, ctx.currentTime);
+      osc.frequency.setValueAtTime(800, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.4);
+    } else if (type === 'error') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(200, ctx.currentTime);
+      osc.frequency.setValueAtTime(150, ctx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.3);
+    }
+  } catch (err) {
+    console.warn('Audio contextualized blocked until user interaction.');
   }
 };
 
 export default function MazeGame({ questions, playerName, score, setScore }) {
   const navigate = useNavigate();
 
-  const [maze, setMaze] = useState(initialMaze);
+  const [maze] = useState(initialMaze);
   const [playerPos, setPlayerPos] = useState(initialPlayerPos);
   const [playerDir, setPlayerDir] = useState(-90);
   const [isShaking, setIsShaking] = useState(false);
 
+  const [visitedTiles, setVisitedTiles] = useState([posKey(initialPlayerPos.x, initialPlayerPos.y)]);
+  const [playerTrail, setPlayerTrail] = useState([]);
+
   const [modalState, setModalState] = useState(null);
-  const [currentDoorIndex, setCurrentDoorIndex] = useState(0);
-  const [pendingPos, setPendingPos] = useState(null);
+  const [pendingDoorIndex, setPendingDoorIndex] = useState(null);
+  const [activeWrongPath, setActiveWrongPath] = useState(null);
   const [feedbackMsg, setFeedbackMsg] = useState('');
-  const [isCorrect, setIsCorrect] = useState(false);
   const [lessonTitle, setLessonTitle] = useState('');
+  const [fragmentName, setFragmentName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [fragments, setFragments] = useState([]);
+  const [doorStates, setDoorStates] = useState({});
+  const [returnPoint, setReturnPoint] = useState(null);
+
+  const cellSize = 20;
+  const gapSize = 2;
+  const step = cellSize + gapSize;
+
+  const totalDoors = questions.length || 0;
+  const progressPercent = totalDoors > 0 ? Math.min((score / totalDoors) * 100, 100) : 0;
+
+  const getTop = (y) => 8 + y * step;
+  const getLeft = (x) => 8 + x * step;
+
+  const doorIndexByPosition = useMemo(() => {
+    const map = new Map();
+    doorConfigs.forEach((config, index) => {
+      map.set(posKey(config.door.x, config.door.y), index);
+    });
+    return map;
+  }, []);
+
+  const wrongDeadEndByPosition = useMemo(() => {
+    const map = new Map();
+    doorConfigs.forEach((config, index) => {
+      map.set(posKey(config.deadEnd.x, config.deadEnd.y), index);
+    });
+    return map;
+  }, []);
 
   const triggerShake = () => {
     setIsShaking(true);
     setTimeout(() => setIsShaking(false), 300);
   };
 
-  const submitScoreAndFinish = async () => {
-    try {
-      setIsSubmitting(true);
-      await axios.post('https://backend-pink-seven-27.vercel.app/api/scores', {
-        player_name: playerName,
-        score,
-        total_questions: questions.length
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsSubmitting(false);
-      navigate('/results');
-    }
-  };
+  const addTrailAndVisit = useCallback((fromPos, toPos, dir) => {
+    setPlayerTrail((prev) => [{ x: fromPos.x, y: fromPos.y, dir }, ...prev].slice(0, 3));
+    setVisitedTiles((prev) => {
+      const key = posKey(toPos.x, toPos.y);
+      return prev.includes(key) ? prev : [...prev, key];
+    });
+  }, []);
+
+  const submitScoreAndFinish = useCallback(
+    async (finalScore) => {
+      try {
+        setIsSubmitting(true);
+        await axios.post('https://backend-pink-seven-27.vercel.app/api/scores', {
+          player_name: playerName,
+          score: finalScore,
+          total_questions: questions.length
+        });
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsSubmitting(false);
+        navigate('/results');
+      }
+    },
+    [navigate, playerName, questions.length]
+  );
 
   const movePlayer = useCallback(
     (direction) => {
@@ -137,6 +220,7 @@ export default function MazeGame({ questions, playerName, score, setScore }) {
       if (!maze[targetY] || maze[targetY][targetX] === undefined) return;
 
       const targetTile = maze[targetY][targetX];
+      const targetKey = posKey(targetX, targetY);
 
       if (targetTile === 1) {
         playSound('wall');
@@ -145,38 +229,126 @@ export default function MazeGame({ questions, playerName, score, setScore }) {
       }
 
       if (targetTile === 4) {
+        const deadEndIndex = wrongDeadEndByPosition.get(targetKey);
+
+        if (
+          deadEndIndex !== undefined &&
+          activeWrongPath !== null &&
+          deadEndIndex === activeWrongPath &&
+          questions[deadEndIndex]
+        ) {
+          playSound('error');
+          triggerShake();
+
+          const skill = skillNames[deadEndIndex] || 'Soft Skill';
+          const fragment = `${skill} Fragment`;
+
+          setLessonTitle(skill);
+          setFragmentName(fragment);
+          setFeedbackMsg(
+            questions[deadEndIndex].feedback ||
+              `Because of weak ${skill.toLowerCase()}, the low road failed.`
+          );
+
+          setFragments((prev) => (prev.includes(fragment) ? prev : [...prev, fragment]));
+          setModalState('fragment');
+          return;
+        }
+
         playSound('error');
         triggerShake();
+        setLessonTitle('Dead End');
+        setFragmentName('');
+        setFeedbackMsg('This path is blocked. Go back and find a better route.');
         setModalState('wrongPath');
         return;
       }
 
       if (targetTile === 2) {
+        const doorIndex = doorIndexByPosition.get(targetKey);
+
+        if (doorIndex === undefined || !questions[doorIndex]) {
+          setLessonTitle('System Notice');
+          setFragmentName('');
+          setFeedbackMsg('This door has no connected question.');
+          setModalState('wrongPath');
+          return;
+        }
+
+        if (activeWrongPath !== null) {
+          playSound('error');
+          triggerShake();
+          setLessonTitle('A Mysterious Force');
+          setFragmentName('');
+          setFeedbackMsg('Your previous wrong decision is weighing you down. You must discover the dead end of your mistake before continuing forward.');
+          setModalState('wrongPath');
+          return;
+        }
+
+        if (doorStates[doorIndex] === 'completed') {
+          playSound('move');
+          addTrailAndVisit(playerPos, { x: targetX, y: targetY }, newDir);
+          setPlayerPos({ x: targetX, y: targetY });
+          return;
+        }
+
         playSound('move');
-        setPendingPos({ x: targetX, y: targetY });
+        setPendingDoorIndex(doorIndex);
+        setReturnPoint(doorConfigs[doorIndex].returnPoint);
         setModalState('question');
         return;
       }
 
       if (targetTile === 3) {
+        if (activeWrongPath !== null) {
+          playSound('error');
+          triggerShake();
+          setLessonTitle('Exit Blocked');
+          setFragmentName('');
+          setFeedbackMsg('You cannot leave this maze until you learn from your final mistake. Find the dead end.');
+          setModalState('wrongPath');
+          return;
+        }
+
         playSound('success');
         setModalState('finished');
-        submitScoreAndFinish();
+        submitScoreAndFinish(score);
         return;
       }
 
       playSound('move');
+      addTrailAndVisit(playerPos, { x: targetX, y: targetY }, newDir);
       setPlayerPos({ x: targetX, y: targetY });
     },
-    [maze, modalState, playerPos, playerDir, playerName, score, questions.length]
+    [
+      modalState,
+      maze,
+      playerPos,
+      playerDir,
+      wrongDeadEndByPosition,
+      activeWrongPath,
+      questions,
+      doorIndexByPosition,
+      doorStates,
+      addTrailAndVisit,
+      submitScoreAndFinish,
+      score
+    ]
   );
 
   const handleKeyDown = useCallback(
     (e) => {
-      if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') movePlayer('up');
-      else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') movePlayer('down');
-      else if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') movePlayer('left');
-      else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') movePlayer('right');
+      const key = e.key.toLowerCase();
+
+      // Prevent scrolling the page while playing!
+      if (['arrowup', 'w', 'arrowdown', 's', 'arrowleft', 'a', 'arrowright', 'd'].includes(key)) {
+        e.preventDefault();
+      }
+
+      if (key === 'arrowup' || key === 'w') movePlayer('up');
+      else if (key === 'arrowdown' || key === 's') movePlayer('down');
+      else if (key === 'arrowleft' || key === 'a') movePlayer('left');
+      else if (key === 'arrowright' || key === 'd') movePlayer('right');
     },
     [movePlayer]
   );
@@ -187,194 +359,284 @@ export default function MazeGame({ questions, playerName, score, setScore }) {
   }, [handleKeyDown]);
 
   const handleAnswer = (selectedOption) => {
-    const q = questions[currentDoorIndex];
-    if (!q) return;
+    if (pendingDoorIndex === null) return;
+
+    const q = questions[pendingDoorIndex];
+    const doorConfig = doorConfigs[pendingDoorIndex];
+    if (!q || !doorConfig) return;
+
+    const skill = skillNames[pendingDoorIndex] || 'Soft Skill';
 
     if (selectedOption === q.correct_answer) {
       playSound('success');
 
-      const newMaze = maze.map((row) => [...row]);
-      newMaze[pendingPos.y][pendingPos.x] = 0;
+      addTrailAndVisit(playerPos, doorConfig.door, playerDir);
+      setPlayerPos({ x: doorConfig.door.x, y: doorConfig.door.y });
 
-      setMaze(newMaze);
-      setPlayerPos(pendingPos);
-      setScore((s) => s + 1);
-      setIsCorrect(true);
-      setLessonTitle(skillNames[currentDoorIndex] || 'Soft Skill');
-      setFeedbackMsg(q.feedback || 'Good decision. You earned the lesson and cleared the path.');
-    } else {
-      playSound('error');
-      setIsCorrect(false);
-      setLessonTitle(skillNames[currentDoorIndex] || 'Soft Skill');
-      setFeedbackMsg(q.feedback || 'That choice created a problem. Try again with a better decision.');
+      setDoorStates((prev) => ({
+        ...prev,
+        [pendingDoorIndex]: 'completed'
+      }));
+
+      setActiveWrongPath(null);
+      setScore((prev) => prev + 1);
+
+      setLessonTitle(skill);
+      setFragmentName('');
+      setFeedbackMsg(
+        fragments.includes(`${skill} Fragment`)
+          ? `You learned from the mistake. The high road is now clear.`
+          : `Good instinct. You chose the high road and moved forward efficiently.`
+      );
+
+      setPendingDoorIndex(null);
+      setModalState('successPath');
+      return;
     }
 
-    setCurrentDoorIndex((i) => i + 1);
-    setModalState('feedback');
+    playSound('move');
+
+    setDoorStates((prev) => ({
+      ...prev,
+      [pendingDoorIndex]: 'wrong-path'
+    }));
+
+    setActiveWrongPath(pendingDoorIndex);
+
+    // Let player pass the door and explore the low road
+    addTrailAndVisit(playerPos, doorConfig.door, playerDir);
+    setPlayerPos({ x: doorConfig.door.x, y: doorConfig.door.y });
+
+    setPendingDoorIndex(null);
+    setModalState(null);
   };
 
-  const playerTop = 12 + playerPos.y * 44;
-  const playerLeft = 12 + playerPos.x * 44;
-  const totalDoors = questions.length || 6;
-  const progressPercent = Math.min((score / totalDoors) * 100, 100);
+  const handleReturnFromFragment = () => {
+    if (!returnPoint || activeWrongPath === null) {
+      setModalState(null);
+      return;
+    }
+
+    playSound('success');
+    addTrailAndVisit(playerPos, returnPoint, playerDir);
+    setPlayerPos({ x: returnPoint.x, y: returnPoint.y });
+
+    const retryDoor = activeWrongPath;
+    setActiveWrongPath(null);
+    setPendingDoorIndex(retryDoor);
+    setModalState('question');
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 py-10 overflow-hidden px-4">
-      <div className="w-full max-w-5xl">
-        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 mb-6 shadow-2xl">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-2">
-            The Digital Maze
-          </h2>
-          <p className="text-slate-300 leading-relaxed">
-            You passed the paper maze. Now you must pass the digital one.
-            Each locked door tests a real-life soft skill. Choose well, avoid dead ends,
-            and prove you can reach the exit through smart decisions.
-          </p>
-        </div>
-
-        <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
-          <div>
-            <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-slate-400 mb-4 font-bold tracking-widest uppercase">
+    <div className="flex flex-col items-center min-h-screen bg-slate-950 py-10 px-4 pt-16">
+      <div className="w-full max-w-7xl relative z-10 glass-panel rounded-3xl p-6 md:p-10 mb-20 animate-fade-in mx-auto">
+        <div className="grid lg:grid-cols-[1fr_320px] gap-5 items-start">
+          <div className="flex flex-col">
+            <div className="w-full flex flex-wrap justify-between gap-3 text-slate-400 mb-4 font-bold tracking-widest uppercase text-xs sm:text-sm">
               <span>
                 Player: <span className="text-teal-400">{playerName}</span>
               </span>
               <span>
-                Score: <span className="text-teal-400">{score}</span> / {totalDoors}
-              </span>
-              <span>
-                Door: <span className="text-amber-400">{Math.min(currentDoorIndex + 1, totalDoors)}</span> / {totalDoors}
+                Score: <span className="text-teal-400">{score}</span> / {totalDoors || 6}
               </span>
             </div>
 
-            <div className="w-full bg-slate-800 rounded-full h-4 mb-6 overflow-hidden border border-slate-700">
+            <div className="w-full bg-slate-900 rounded-full h-3 mb-5 overflow-hidden border border-slate-800">
               <div
-                className="h-full bg-gradient-to-r from-teal-500 to-blue-600 transition-all duration-300"
+                className="h-full bg-gradient-to-r from-teal-500 to-blue-600 transition-all duration-300 shadow-[0_0_10px_rgba(45,212,191,0.5)]"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
 
-            <div
-              className={`relative bg-slate-800 p-2 rounded-xl shadow-2xl border transition-colors duration-100 ${
-                isShaking ? 'border-red-500 animate-shake' : 'border-slate-700'
-              }`}
-            >
+            <div className="overflow-auto pb-4 custom-scrollbar flex justify-center">
               <div
-                className="grid gap-1"
-                style={{ gridTemplateColumns: `repeat(${maze[0].length}, 40px)` }}
+                className={`relative bg-slate-900 p-2 rounded-xl border transition-colors duration-100 ${
+                  isShaking ? 'border-red-500 animate-shake' : 'border-slate-800'
+                }`}
               >
-                {maze.map((row, y) =>
-                  row.map((cell, x) => {
-                    let bgColor = 'bg-slate-700/50';
-                    if (cell === 1) bgColor = 'bg-slate-900 shadow-inner';
-                    if (cell === 2) bgColor = 'bg-amber-600 border-b-4 border-amber-800';
-                    if (cell === 3) bgColor = 'bg-yellow-400 animate-pulse';
-                    if (cell === 4) bgColor = 'bg-red-900/30 border border-red-900/50';
+                <div
+                  className="grid gap-[2px]"
+                  style={{ gridTemplateColumns: `repeat(${maze[0].length}, ${cellSize}px)` }}
+                >
+                  {maze.map((row, y) =>
+                    row.map((cell, x) => {
+                      const dist = Math.max(
+                        Math.abs(playerPos.x - x),
+                        Math.abs(playerPos.y - y)
+                      );
 
-                    return (
-                      <div
-                        key={`${x}-${y}`}
-                        className={`w-10 h-10 rounded-sm flex items-center justify-center ${bgColor}`}
-                      >
-                        {cell === 2 && <span className="text-white text-xs font-bold">🔒</span>}
-                        {cell === 3 && <span className="text-slate-900 font-bold">★</span>}
-                        {cell === 4 && <span className="text-red-500/20 text-xs font-bold">❌</span>}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
+                      // 3x3 visibility
+                      const isVisible = dist <= 1;
+                      const hasVisited = visitedTiles.includes(posKey(x, y));
 
-              <div
-                className="absolute w-8 h-8 flex items-center justify-center transition-all duration-150 ease-out z-10 drop-shadow-[0_0_10px_rgba(45,212,191,0.8)]"
-                style={{
-                  top: `${playerTop}px`,
-                  left: `${playerLeft}px`,
-                  transform: `rotate(${playerDir}deg)`
-                }}
-              >
-                <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-teal-400">
-                  <path d="M12 2L20 20L12 17L4 20L12 2Z" fill="currentColor" />
-                </svg>
+                      if (!isVisible && !hasVisited) {
+                        return (
+                          <div
+                            key={`${x}-${y}`}
+                            style={{ width: `${cellSize}px`, height: `${cellSize}px` }}
+                            className="rounded-sm bg-black"
+                          />
+                        );
+                      }
+
+                      let bgColor = 'bg-slate-800/80';
+                      let opacityClass = isVisible ? 'opacity-100 shadow-[inset_0_0_8px_rgba(45,212,191,0.05)]' : 'opacity-30 blur-[1px]';
+
+                      if (cell === 1) bgColor = 'bg-slate-950 shadow-[inset_0_0_12px_rgba(0,0,0,0.8)] border border-slate-800/50';
+                      if (cell === 2) bgColor = 'bg-gradient-to-b from-amber-500 to-amber-700 shadow-[0_0_15px_rgba(245,158,11,0.3)] border-b-2 border-amber-900';
+                      if (cell === 3) bgColor = 'bg-gradient-to-tr from-yellow-400 to-amber-300 animate-pulse shadow-[0_0_20px_rgba(250,204,21,0.6)]';
+                      if (cell === 4) bgColor = 'bg-red-900/60 border border-red-500/50 shadow-[inset_0_0_15px_rgba(239,68,68,0.3)]';
+
+                      return (
+                        <div
+                          key={`${x}-${y}`}
+                          style={{ width: `${cellSize}px`, height: `${cellSize}px` }}
+                          className={`rounded overflow-hidden flex items-center justify-center transition-all duration-300 ${bgColor} ${opacityClass}`}
+                        >
+                          {cell === 2 && <span className="text-white text-[9px] font-black drop-shadow-md">🔒</span>}
+                          {cell === 3 && <span className="text-slate-900 font-extrabold text-[12px] drop-shadow-sm">★</span>}
+                          {cell === 4 && isVisible && <span className="text-red-400 text-[10px] font-bold drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">❌</span>}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {playerTrail.map((trail, index) => (
+                  <div
+                    key={`${trail.x}-${trail.y}-${index}`}
+                    className="absolute flex items-center justify-center transition-all duration-100 z-0 text-teal-500"
+                    style={{
+                      top: `${getTop(trail.y)}px`,
+                      left: `${getLeft(trail.x)}px`,
+                      width: '16px',
+                      height: '16px',
+                      transform: `rotate(${trail.dir}deg)`,
+                      opacity: index === 0 ? 0.25 : index === 1 ? 0.12 : 0.05
+                    }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+                      <path d="M12 2L20 20L12 17L4 20L12 2Z" fill="currentColor" />
+                    </svg>
+                  </div>
+                ))}
+
+                <div
+                  className="absolute flex items-center justify-center transition-all duration-200 ease-out z-10"
+                  style={{
+                    top: `${getTop(playerPos.y)}px`,
+                    left: `${getLeft(playerPos.x)}px`,
+                    width: '16px',
+                    height: '16px',
+                    transform: `rotate(${playerDir}deg)`,
+                    filter: 'drop-shadow(0px 0px 16px rgba(45,212,191,1))'
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" className="w-full h-full text-teal-300">
+                    <path d="M12 2L20 20L12 17L4 20L12 2Z" fill="currentColor" />
+                  </svg>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto mt-6 md:hidden">
+            <div className="grid grid-cols-3 gap-2 max-w-[180px] mx-auto mt-4 lg:hidden">
               <div />
-              <button
-                onClick={() => movePlayer('up')}
-                className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg"
-              >
-                ↑
-              </button>
+              <button onClick={() => movePlayer('up')} className="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-2 rounded-lg border border-slate-700">↑</button>
               <div />
-              <button
-                onClick={() => movePlayer('left')}
-                className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg"
-              >
-                ←
-              </button>
-              <button
-                onClick={() => movePlayer('down')}
-                className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg"
-              >
-                ↓
-              </button>
-              <button
-                onClick={() => movePlayer('right')}
-                className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg"
-              >
-                →
-              </button>
+              <button onClick={() => movePlayer('left')} className="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-2 rounded-lg border border-slate-700">←</button>
+              <button onClick={() => movePlayer('down')} className="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-2 rounded-lg border border-slate-700">↓</button>
+              <button onClick={() => movePlayer('right')} className="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-2 rounded-lg border border-slate-700">→</button>
             </div>
           </div>
 
-          <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-4">Maze Legend</h3>
-            <div className="space-y-3 text-slate-300">
-              <div className="flex items-center gap-3">
-                <span className="text-xl">🔒</span>
-                <span>Question Door</span>
+          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl hidden lg:block">
+            <h3 className="text-xl font-bold text-white mb-6 uppercase tracking-widest text-sm border-b border-slate-800 pb-4">
+              Maze Status
+            </h3>
+
+            <div className="space-y-4 text-slate-400 text-sm">
+              <div className="flex items-center gap-4">
+                <span className="text-lg text-amber-500">🔒</span>
+                <span>Door Chamber</span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xl">★</span>
+              <div className="flex items-center gap-4">
+                <span className="text-lg text-yellow-400">★</span>
                 <span>Exit</span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xl">❌</span>
-                <span>Dead End</span>
+              <div className="flex items-center gap-4">
+                <span className="text-lg text-red-500">❌</span>
+                <span>Low Road Dead End</span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="w-5 h-5 rounded bg-slate-900 border border-slate-700" />
-                <span>Wall</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-teal-400 text-xl">▲</span>
-                <span>Player</span>
+              <div className="flex items-center gap-4">
+                <span className="text-lg text-teal-400">▲</span>
+                <span>You</span>
               </div>
             </div>
 
-            <div className="mt-6 pt-6 border-t border-slate-700">
-              <h4 className="text-lg font-bold text-teal-400 mb-2">Tip</h4>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Good soft skills are like good navigation. You do not win by rushing.
-                You win by choosing the right path.
+            <div className="mt-8 p-5 rounded-xl bg-slate-950/80 border border-slate-800 shadow-inner">
+              <p className="text-teal-400 font-bold mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+                <span className="text-xl">✨</span> Fragments Earned
               </p>
+              {fragments.length === 0 ? (
+                <p className="text-slate-500 text-xs leading-relaxed italic">
+                  Explore the low roads and learn from mistakes to collect fragments.
+                </p>
+              ) : (
+                <ul className="space-y-3 test-sm text-slate-300">
+                  {fragments.map((fragment) => (
+                    <li key={fragment} className="bg-slate-900/80 rounded-lg px-4 py-3 border border-slate-700 shadow flex items-center gap-2 transition hover:border-teal-500 hover:shadow-[0_0_10px_rgba(45,212,191,0.2)]">
+                      <span className="text-teal-400">⚡</span> {fragment}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {modalState && (
-        <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-md flex items-center justify-center p-4 z-50 fixed">
+        <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-50 fixed">
+          {modalState === 'question' && pendingDoorIndex !== null && questions[pendingDoorIndex] && (
+            <div className="bg-slate-900 p-8 rounded-2xl max-w-2xl border border-teal-500 shadow-2xl w-full">
+              <h2 className="text-amber-500 font-bold uppercase tracking-widest mb-4">
+                🔒 Chamber {pendingDoorIndex + 1}
+              </h2>
+
+              <p className="text-sm text-teal-400 font-bold mb-3">
+                Skill Focus: {skillNames[pendingDoorIndex] || 'Soft Skill'}
+              </p>
+
+              <p className="text-xl text-white mb-8 leading-relaxed font-medium">
+                {questions[pendingDoorIndex].scenario}
+              </p>
+
+              <div className="flex flex-col gap-4">
+                <button
+                  className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left p-5 rounded-xl text-white transition hover:border-teal-500"
+                  onClick={() => handleAnswer('A')}
+                >
+                  A) {questions[pendingDoorIndex].option_a}
+                </button>
+
+                <button
+                  className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left p-5 rounded-xl text-white transition hover:border-teal-500"
+                  onClick={() => handleAnswer('B')}
+                >
+                  B) {questions[pendingDoorIndex].option_b}
+                </button>
+              </div>
+            </div>
+          )}
+
           {modalState === 'wrongPath' && (
-            <div className="bg-slate-800 p-10 rounded-2xl max-w-md text-center border border-red-500 shadow-2xl w-full">
+            <div className="bg-slate-900 p-10 rounded-2xl max-w-md text-center border border-red-500 shadow-2xl w-full">
               <div className="text-6xl mb-4">🧱</div>
               <h2 className="text-3xl font-bold mb-4 text-red-400">Dead End</h2>
-              <p className="text-slate-300 mb-8 text-lg">
-                You rushed into the wrong path. Step back and think before moving again.
-              </p>
+              <p className="text-amber-400 font-bold text-lg mb-3">{lessonTitle}</p>
+              <p className="text-slate-300 mb-8 text-lg leading-relaxed">{feedbackMsg}</p>
               <button
-                className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg shadow-lg"
+                className="w-full bg-red-900/50 hover:bg-red-600 border border-red-500 text-white font-bold py-3 rounded-lg transition-colors"
                 onClick={() => setModalState(null)}
               >
                 Go Back
@@ -382,64 +644,42 @@ export default function MazeGame({ questions, playerName, score, setScore }) {
             </div>
           )}
 
-          {modalState === 'question' && questions[currentDoorIndex] && (
-            <div className="bg-slate-800 p-8 rounded-2xl max-w-2xl border border-teal-500 shadow-2xl w-full">
-              <h2 className="text-amber-500 font-bold uppercase tracking-widest mb-4">
-                🔒 Door {currentDoorIndex + 1}
-              </h2>
-              <p className="text-sm text-teal-400 font-bold mb-3">
-                Skill Focus: {skillNames[currentDoorIndex] || 'Soft Skill'}
-              </p>
-              <p className="text-xl text-white mb-8 leading-relaxed font-medium">
-                {questions[currentDoorIndex].scenario}
-              </p>
-
-              <div className="flex flex-col gap-4">
-                <button
-                  className="bg-slate-700 hover:bg-slate-600 border border-slate-600 text-left p-5 rounded-xl text-white transition"
-                  onClick={() => handleAnswer('A')}
-                >
-                  A) {questions[currentDoorIndex].option_a}
-                </button>
-                <button
-                  className="bg-slate-700 hover:bg-slate-600 border border-slate-600 text-left p-5 rounded-xl text-white transition"
-                  onClick={() => handleAnswer('B')}
-                >
-                  B) {questions[currentDoorIndex].option_b}
-                </button>
-              </div>
+          {modalState === 'fragment' && (
+            <div className="bg-slate-900 p-10 rounded-2xl max-w-md text-center border border-teal-500 shadow-2xl w-full">
+              <div className="text-6xl mb-4">✨</div>
+              <h2 className="text-3xl font-bold mb-4 text-teal-400">Skill Fragment Earned</h2>
+              <p className="text-amber-400 font-bold text-lg mb-3">{fragmentName}</p>
+              <p className="text-slate-300 mb-8 text-lg leading-relaxed">{feedbackMsg}</p>
+              <button
+                className="w-full bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold py-3 rounded-lg"
+                onClick={handleReturnFromFragment}
+              >
+                Echo Back to Door
+              </button>
             </div>
           )}
 
-          {modalState === 'feedback' && (
-            <div className="bg-slate-800 p-10 rounded-2xl max-w-md text-center border border-slate-700 shadow-2xl w-full">
-              <div className="text-6xl mb-4">{isCorrect ? '🎓' : '❌'}</div>
-
-              <h2 className={`text-3xl font-bold mb-3 ${isCorrect ? 'text-teal-400' : 'text-red-400'}`}>
-                {isCorrect ? 'Lesson Earned' : 'Door Jammed'}
-              </h2>
-
+          {modalState === 'successPath' && (
+            <div className="bg-slate-900 p-10 rounded-2xl max-w-md text-center border border-teal-500 shadow-2xl w-full">
+              <div className="text-6xl mb-4">✅</div>
+              <h2 className="text-3xl font-bold mb-4 text-teal-400">High Road Opened</h2>
               <p className="text-amber-400 font-bold text-lg mb-3">{lessonTitle}</p>
-
-              <p className="text-slate-300 mb-8 text-lg leading-relaxed">
-                {feedbackMsg}
-              </p>
-
+              <p className="text-slate-300 mb-8 text-lg leading-relaxed">{feedbackMsg}</p>
               <button
                 className="w-full bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold py-3 rounded-lg"
                 onClick={() => setModalState(null)}
               >
-                {isCorrect ? 'Continue Forward' : 'Step Back'}
+                Continue
               </button>
             </div>
           )}
 
           {modalState === 'finished' && (
-            <div className="bg-slate-800 p-10 rounded-2xl max-w-md text-center border border-teal-500 shadow-2xl w-full">
-              <div className="text-6xl mb-4">🏁</div>
+            <div className="bg-slate-900 p-10 rounded-2xl max-w-md text-center border border-teal-500 shadow-2xl w-full">
+              <div className="text-6xl mb-4 animate-bounce">🏁</div>
               <h2 className="text-3xl font-bold mb-4 text-teal-400">Maze Completed</h2>
               <p className="text-slate-300 text-lg">
-                {isSubmitting ? 'Saving your score and opening the results...' : 'Opening results...'}
+                {isSubmitting ? 'Saving your score...' : 'Opening results...'}
               </p>
             </div>
           )}
