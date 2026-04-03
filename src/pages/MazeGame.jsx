@@ -148,15 +148,32 @@ export default function MazeGame({ questions, playerName, score, setScore, timeT
     }
   }, [modalState, setTimeTaken]);
 
-  const cellSize = 20;
-  const gapSize = 2;
+  const [dimensions, setDimensions] = useState(() => ({
+    cellSize: window.innerWidth < 640 ? 11 : window.innerWidth < 768 ? 14 : 20,
+    gapSize: window.innerWidth < 640 ? 1 : 2,
+  }));
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDimensions({
+        cellSize: window.innerWidth < 640 ? 11 : window.innerWidth < 768 ? 14 : 20,
+        gapSize: window.innerWidth < 640 ? 1 : 2,
+      });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const { cellSize, gapSize } = dimensions;
   const step = cellSize + gapSize;
+  const playerSize = cellSize * 0.8;
+  const playerOffset = (cellSize - playerSize) / 2;
 
   const totalDoors = questions.length || 0;
   const progressPercent = totalDoors > 0 ? Math.min((score / totalDoors) * 100, 100) : 0;
 
-  const getTop = (y) => 8 + y * step;
-  const getLeft = (x) => 8 + x * step;
+  const getTop = (y) => 8 + y * step + playerOffset;
+  const getLeft = (x) => 8 + x * step + playerOffset;
 
   const doorIndexByPosition = useMemo(() => {
     const map = new Map();
@@ -527,8 +544,8 @@ export default function MazeGame({ questions, playerName, score, setScore, timeT
                 }`}
               >
                 <div
-                  className="grid gap-[2px]"
-                  style={{ gridTemplateColumns: `repeat(${maze[0].length}, ${cellSize}px)` }}
+                  className="grid"
+                  style={{ gap: `${gapSize}px`, gridTemplateColumns: `repeat(${maze[0].length}, ${cellSize}px)` }}
                 >
                   {maze.map((row, y) =>
                     row.map((cell, x) => {
@@ -565,9 +582,9 @@ export default function MazeGame({ questions, playerName, score, setScore, timeT
                           style={{ width: `${cellSize}px`, height: `${cellSize}px` }}
                           className={`rounded overflow-hidden flex items-center justify-center transition-all duration-300 ${bgColor} ${opacityClass}`}
                         >
-                          {cell === 2 && <span className="text-white text-[9px] font-black drop-shadow-md">🔒</span>}
-                          {cell === 3 && <span className="text-slate-900 font-extrabold text-[12px] drop-shadow-sm">★</span>}
-                          {cell === 4 && isVisible && <span className="text-red-400 text-[10px] font-bold drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">❌</span>}
+                          {cell === 2 && <span className="text-white font-black drop-shadow-md" style={{ fontSize: `${cellSize * 0.5}px` }}>🔒</span>}
+                          {cell === 3 && <span className="text-slate-900 font-extrabold drop-shadow-sm" style={{ fontSize: `${cellSize * 0.6}px` }}>★</span>}
+                          {cell === 4 && isVisible && <span className="text-red-400 font-bold drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]" style={{ fontSize: `${cellSize * 0.5}px` }}>❌</span>}
                         </div>
                       );
                     })
@@ -581,8 +598,8 @@ export default function MazeGame({ questions, playerName, score, setScore, timeT
                     style={{
                       top: `${getTop(trail.y)}px`,
                       left: `${getLeft(trail.x)}px`,
-                      width: '16px',
-                      height: '16px',
+                      width: `${playerSize}px`,
+                      height: `${playerSize}px`,
                       transform: `rotate(${trail.dir}deg)`,
                       opacity: index === 0 ? 0.25 : index === 1 ? 0.12 : 0.05
                     }}
@@ -598,8 +615,8 @@ export default function MazeGame({ questions, playerName, score, setScore, timeT
                   style={{
                     top: `${getTop(playerPos.y)}px`,
                     left: `${getLeft(playerPos.x)}px`,
-                    width: '16px',
-                    height: '16px',
+                    width: `${playerSize}px`,
+                    height: `${playerSize}px`,
                     transform: `rotate(${playerDir}deg)`,
                     filter: 'drop-shadow(0px 0px 16px rgba(45,212,191,1))'
                   }}
@@ -611,13 +628,13 @@ export default function MazeGame({ questions, playerName, score, setScore, timeT
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 max-w-[180px] mx-auto mt-4 lg:hidden">
+            <div className="grid grid-cols-3 gap-3 max-w-[220px] mx-auto mt-6 lg:hidden">
               <div />
-              <button onClick={() => movePlayer('up')} className="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-2 rounded-lg border border-slate-700">↑</button>
+              <button onClick={() => movePlayer('up')} className="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-4 text-2xl rounded-xl border border-slate-700 shadow-md">↑</button>
               <div />
-              <button onClick={() => movePlayer('left')} className="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-2 rounded-lg border border-slate-700">←</button>
-              <button onClick={() => movePlayer('down')} className="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-2 rounded-lg border border-slate-700">↓</button>
-              <button onClick={() => movePlayer('right')} className="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-2 rounded-lg border border-slate-700">→</button>
+              <button onClick={() => movePlayer('left')} className="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-4 text-2xl rounded-xl border border-slate-700 shadow-md">←</button>
+              <button onClick={() => movePlayer('down')} className="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-4 text-2xl rounded-xl border border-slate-700 shadow-md">↓</button>
+              <button onClick={() => movePlayer('right')} className="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-4 text-2xl rounded-xl border border-slate-700 shadow-md">→</button>
             </div>
           </div>
 
