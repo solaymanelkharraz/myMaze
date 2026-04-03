@@ -45,7 +45,7 @@ export default function LandingPage({
         <div className="bg-slate-950/60 p-8 rounded-2xl border border-slate-700/50 mb-8 text-left shadow-inner">
           <h3 className="text-2xl font-bold text-teal-400 mb-3 flex items-center gap-2"><span className="text-2xl">📜</span> Story</h3>
           <p className="text-slate-300 leading-relaxed text-lg">
-            You passed the paper maze. Now this is the digital maze.
+            This is the digital maze.
             Each door is a real-life challenge based on soft skills like communication,
             teamwork, leadership, and problem-solving. Pass the doors, avoid <span className="text-red-400 font-bold">dead ends</span>,
             and prove that your decisions can take you to the exit.
