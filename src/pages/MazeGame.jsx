@@ -25,7 +25,7 @@ const initialMaze = [
   [1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
   [1,1,1,0,1,1,1,0,0,1,4,1,1,1,1,1,1,1,0,0,0,0,1,0,1],
   [1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,0,1,1,0,1,0,1],
-  [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1],
+  [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,1],
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1],
   [1,1,0,0,0,0,0,0,1,1,1,1,1,1,4,1,1,1,1,1,1,0,1,1,1],
   [1,0,0,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1],
@@ -60,11 +60,11 @@ const getSkillForQuestion = (scenario) => {
 // - wrong dead end position
 const doorConfigs = [
   { questionIndex: 0, door: { x: 19, y: 23 }, returnPoint: { x: 20, y: 23 }, deadEnd: { x: 16, y: 21 } },
-  { questionIndex: 1, door: { x: 7,  y: 19 }, returnPoint: { x: 8,  y: 19 }, deadEnd: { x: 10, y: 21 } },
-  { questionIndex: 2, door: { x: 17, y: 15 }, returnPoint: { x: 18, y: 15 }, deadEnd: { x: 14, y: 17 } },
-  { questionIndex: 3, door: { x: 7,  y: 11 }, returnPoint: { x: 8,  y: 11 }, deadEnd: { x: 10, y: 13 } },
+  { questionIndex: 1, door: { x: 7,  y: 19 }, returnPoint: { x: 7,  y: 18 }, deadEnd: { x: 10, y: 21 } },
+  { questionIndex: 2, door: { x: 17, y: 15 }, returnPoint: { x: 19, y: 15 }, deadEnd: { x: 14, y: 17 } },
+  { questionIndex: 3, door: { x: 7,  y: 11 }, returnPoint: { x: 6,  y: 11 }, deadEnd: { x: 10, y: 13 } },
   { questionIndex: 4, door: { x: 17, y: 7  }, returnPoint: { x: 18, y: 7  }, deadEnd: { x: 14, y: 9  } },
-  { questionIndex: 5, door: { x: 7,  y: 3  }, returnPoint: { x: 8,  y: 3  }, deadEnd: { x: 10, y: 5  } }
+  { questionIndex: 5, door: { x: 7,  y: 3  }, returnPoint: { x: 6,  y: 3  }, deadEnd: { x: 10, y: 5  } }
 ];
 
 const posKey = (x, y) => `${x},${y}`;
