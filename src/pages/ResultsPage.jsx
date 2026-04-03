@@ -13,6 +13,21 @@ export default function ResultsPage({ score, totalQuestions, playerName, questio
     height: window.innerHeight
   });
 
+  const getSkillForQuestion = (scenario) => {
+    if (!scenario) return 'Soft Skill';
+    const text = scenario.toLowerCase();
+    
+    if (text.includes('burnout') || text.includes('overwhelm') || text.includes('stress') || text.includes('panic')) return 'Emotional Intelligence';
+    if (text.includes('deadline') || text.includes('late') || text.includes('time') || text.includes('priorit')) return 'Time Management';
+    if (text.includes('client') || text.includes('customer') || text.includes('stakeholder')) return 'Client Relations';
+    if (text.includes('team') || text.includes('coworker') || text.includes('colleague') || text.includes('conflict') || text.includes('gossip') || text.includes('credit')) return 'Conflict Resolution';
+    if (text.includes('mistake') || text.includes('feedback') || text.includes('fail') || text.includes('bug')) return 'Accountability';
+    if (text.includes('change') || text.includes('adapt') || text.includes('new') || text.includes('pivot')) return 'Adaptability';
+    if (text.includes('boss') || text.includes('manager') || text.includes('lead')) return 'Professionalism';
+    
+    return 'Critical Thinking';
+  };
+
   const formatTime = (secs) => {
     if (secs === undefined || secs === null) return '--:--';
     const m = Math.floor(secs / 60).toString().padStart(2, '0');
@@ -188,7 +203,7 @@ export default function ResultsPage({ score, totalQuestions, playerName, questio
                 </p>
 
                 <p className="text-teal-400 text-base font-bold mb-3 flex items-center gap-2">
-                  <span>✦</span> Skill: {['Communication', 'Time Management', 'Emotional Intelligence', 'Adaptability', 'Clarity & Initiative', 'Professionalism'][index] || 'Soft Skill'}
+                  <span>✦</span> Skill: {getSkillForQuestion(q.scenario)}
                 </p>
 
                 <p className="text-slate-300 text-lg leading-relaxed italic mb-5 pl-4 border-l-2 border-slate-700">"{q.scenario}"</p>

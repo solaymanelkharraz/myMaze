@@ -11,42 +11,48 @@ import Question from '../components/Question';
 // 4 = dead end
 const initialMaze = [
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1],
-  [1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
-  [1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,1,1,0,1,1,1,1,1,1,4,1,0,0,0,0,0,0,0,1,1,1,1,1,1],
-  [1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,1,1,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,0,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,0,1,0,1],
+  [1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
   [1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
   [1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
-  [1,1,1,0,1,1,1,0,0,1,4,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
-  [1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
-  [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,0,1,1,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1],
-  [1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+  [1,1,1,0,1,1,1,1,1,1,4,1,0,0,0,0,0,0,0,1,1,1,1,0,1],
+  [1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1],
+  [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,1,0,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,0,1,0,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,0,0,0,0,1,0,1,0,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,0,1,0,1],
+  [1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
   [1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
-  [1,1,1,0,1,1,1,0,1,1,4,1,1,1,1,1,4,1,0,0,0,0,0,0,1],
-  [1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1],
+  [1,1,1,0,1,1,1,0,0,1,4,1,1,1,1,1,1,1,0,0,0,0,1,0,1],
+  [1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,0,1,1,0,1,0,1],
+  [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1],
+  [1,1,0,0,0,0,0,0,1,1,1,1,1,1,4,1,1,1,1,1,1,0,1,1,1],
+  [1,0,0,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1],
+  [1,0,1,0,0,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+  [1,0,0,0,1,0,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+  [1,1,1,0,1,0,1,0,1,1,4,1,1,1,1,1,4,1,0,0,0,0,0,0,1],
+  [1,1,1,0,1,0,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1],
   [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,1],
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 ];
 
 const initialPlayerPos = { x: 23, y: 23 };
 
-const skillNames = [
-  'Communication',
-  'Time Management',
-  'Emotional Intelligence',
-  'Adaptability',
-  'Clarity & Initiative',
-  'Professionalism'
-];
+const getSkillForQuestion = (scenario) => {
+  if (!scenario) return 'Soft Skill';
+  const text = scenario.toLowerCase();
+  
+  if (text.includes('burnout') || text.includes('overwhelm') || text.includes('stress') || text.includes('panic')) return 'Emotional Intelligence';
+  if (text.includes('deadline') || text.includes('late') || text.includes('time') || text.includes('priorit')) return 'Time Management';
+  if (text.includes('client') || text.includes('customer') || text.includes('stakeholder')) return 'Client Relations';
+  if (text.includes('team') || text.includes('coworker') || text.includes('colleague') || text.includes('conflict') || text.includes('gossip') || text.includes('credit')) return 'Conflict Resolution';
+  if (text.includes('mistake') || text.includes('feedback') || text.includes('fail') || text.includes('bug')) return 'Accountability';
+  if (text.includes('change') || text.includes('adapt') || text.includes('new') || text.includes('pivot')) return 'Adaptability';
+  if (text.includes('boss') || text.includes('manager') || text.includes('lead')) return 'Professionalism';
+  
+  return 'Critical Thinking';
+};
 
 // Each chamber door has:
 // - door position
@@ -54,11 +60,11 @@ const skillNames = [
 // - wrong dead end position
 const doorConfigs = [
   { questionIndex: 0, door: { x: 19, y: 23 }, returnPoint: { x: 20, y: 23 }, deadEnd: { x: 16, y: 21 } },
-  { questionIndex: 1, door: { x: 7,  y: 19 }, returnPoint: { x: 6,  y: 19 }, deadEnd: { x: 10, y: 21 } },
+  { questionIndex: 1, door: { x: 7,  y: 19 }, returnPoint: { x: 8,  y: 19 }, deadEnd: { x: 10, y: 21 } },
   { questionIndex: 2, door: { x: 17, y: 15 }, returnPoint: { x: 18, y: 15 }, deadEnd: { x: 14, y: 17 } },
-  { questionIndex: 3, door: { x: 7,  y: 11 }, returnPoint: { x: 6,  y: 11 }, deadEnd: { x: 10, y: 13 } },
+  { questionIndex: 3, door: { x: 7,  y: 11 }, returnPoint: { x: 8,  y: 11 }, deadEnd: { x: 10, y: 13 } },
   { questionIndex: 4, door: { x: 17, y: 7  }, returnPoint: { x: 18, y: 7  }, deadEnd: { x: 14, y: 9  } },
-  { questionIndex: 5, door: { x: 7,  y: 3  }, returnPoint: { x: 6,  y: 3  }, deadEnd: { x: 10, y: 5  } }
+  { questionIndex: 5, door: { x: 7,  y: 3  }, returnPoint: { x: 8,  y: 3  }, deadEnd: { x: 10, y: 5  } }
 ];
 
 const posKey = (x, y) => `${x},${y}`;
@@ -148,18 +154,24 @@ export default function MazeGame({ questions, playerName, score, setScore, timeT
     }
   }, [modalState, setTimeTaken]);
 
-  const [dimensions, setDimensions] = useState(() => ({
-    cellSize: window.innerWidth < 640 ? 11 : window.innerWidth < 768 ? 14 : 20,
-    gapSize: window.innerWidth < 640 ? 1 : 2,
-  }));
+  const calculateDimensions = () => {
+    let availableWidth = window.innerWidth - 90; // account for paddings
+    
+    let calcCellSize = Math.floor((availableWidth - 24) / 25);
+    calcCellSize = Math.max(6, Math.min(calcCellSize, 20));
+    
+    let calcGap = calcCellSize >= 15 ? 2 : 1;
+    
+    return {
+      cellSize: calcCellSize,
+      gapSize: calcGap
+    };
+  };
+
+  const [dimensions, setDimensions] = useState(calculateDimensions);
 
   useEffect(() => {
-    const handleResize = () => {
-      setDimensions({
-        cellSize: window.innerWidth < 640 ? 11 : window.innerWidth < 768 ? 14 : 20,
-        gapSize: window.innerWidth < 640 ? 1 : 2,
-      });
-    };
+    const handleResize = () => setDimensions(calculateDimensions());
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -287,14 +299,14 @@ export default function MazeGame({ questions, playerName, score, setScore, timeT
           playSound('error');
           triggerShake();
 
-          const skill = skillNames[deadEndIndex] || 'Soft Skill';
+          const skill = getSkillForQuestion(questions[deadEndIndex].scenario);
           const fragment = `${skill} Fragment`;
 
           setLessonTitle(skill);
           setFragmentName(fragment);
           setFeedbackMsg(
             questions[deadEndIndex].feedback ||
-              `Because of weak ${skill.toLowerCase()}, the low road failed.`
+              `Because of weak skill, the low road failed.`
           );
 
           setFragments((prev) => (prev.includes(fragment) ? prev : [...prev, fragment]));
@@ -412,7 +424,7 @@ export default function MazeGame({ questions, playerName, score, setScore, timeT
     const doorConfig = doorConfigs[pendingDoorIndex];
     if (!q || !doorConfig) return;
 
-    const skill = skillNames[pendingDoorIndex] || 'Soft Skill';
+    const skill = getSkillForQuestion(q.scenario);
 
     if (selectedOption === q.correct_answer) {
       playSound('success');
@@ -518,7 +530,7 @@ export default function MazeGame({ questions, playerName, score, setScore, timeT
         </div>
       </div>
 
-      <div className="w-full max-w-7xl relative z-10 glass-panel rounded-3xl p-6 md:p-10 mb-20 animate-fade-in mx-auto">
+      <div className="w-full max-w-7xl relative z-10 glass-panel rounded-3xl p-3 sm:p-6 md:p-10 mb-20 animate-fade-in mx-auto">
         <div className="grid lg:grid-cols-[1fr_320px] gap-5 items-start">
           <div className="flex flex-col">
             <div className="w-full flex flex-wrap justify-between gap-3 text-slate-400 mb-4 font-bold tracking-widest uppercase text-xs sm:text-sm">
@@ -689,7 +701,7 @@ export default function MazeGame({ questions, playerName, score, setScore, timeT
           {modalState === 'question' && pendingDoorIndex !== null && questions[pendingDoorIndex] && (
             <Question 
               question={questions[pendingDoorIndex]} 
-              skillName={skillNames[pendingDoorIndex] || 'Soft Skill'} 
+              skillName={getSkillForQuestion(questions[pendingDoorIndex].scenario)} 
               chamberIndex={pendingDoorIndex} 
               handleAnswer={handleAnswer} 
             />
