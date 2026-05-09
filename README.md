@@ -1,16 +1,49 @@
-# React + Vite
+> ⚠️ **Note:** This is the frontend client built with React and Tailwind v4. The backend API logic, database schemas, and PDF generation are handled in a separate Laravel repository.  
+> 🔗 [Click here to view the Backend API Repository](https://github.com/solaymanelkharraz/backend_mymaze.git)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Soft Skills Maze Game - Frontend 🧠🕹️
 
-Currently, two official plugins are available:
+An interactive, educational web application designed to test and improve soft skills through an engaging maze-style game. This project was developed by Soulayman El Kharraz (as part of the CC3 Soft Skills evaluation). 
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Players navigate through a maze by answering situational soft skill questions correctly. The game tracks the player's score and time taken, providing a fun and dynamic learning experience!
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+- **React.js** (Bootstrapped with Vite)
+- **Tailwind CSS v4** (For modern, responsive styling)
+- **React Router** (For seamless navigation)
+- **Axios** (For API communication)
+- **React Confetti** (For celebratory animations upon completion)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🚀 Getting Started
+
+Follow these instructions to get a copy of the frontend up and running on your local machine for development.
+
+1. Install the Node.js dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+3. Open your browser and visit the local URL provided by Vite (usually `http://localhost:5173`).
+
+---
+
+## 🎮 How to Play
+
+1. **Enter your name** on the Landing Page to start.
+2. **Navigate the Maze**: You will be presented with a series of doors.
+3. **Answer Questions**: To pass through a door, you must correctly answer a soft skill scenario question.
+4. **Complete the Game**: Reach the end of the maze to see your total score and the time taken!
+
+---
+
+## 👤 Author
+**Soulayman El Kharraz**
+*Project submitted for Soft Skills CC3.*
